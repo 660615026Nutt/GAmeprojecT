@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+//TODO: No idea
 public class Main extends Game {
     public SpriteBatch batch;
     private int currentCharacter = 1;  // Default character
