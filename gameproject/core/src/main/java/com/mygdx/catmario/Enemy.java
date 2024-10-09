@@ -14,7 +14,7 @@ public class Enemy {
         this.health = 100; //initial HP
         this.isDead = false; //for start game
         this.position = new Vector2(startX, startY);
-        this.texture = new Texture("enemy.png"); //enemy texture
+        this.texture = new Texture("enemy.jpg"); //enemy texture
     }
 
     //damage from bullet

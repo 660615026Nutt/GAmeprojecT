@@ -47,9 +47,9 @@ public class CharacterController {
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.A)) {
             float bulletStartX = position.x + 170; // Start bullet just right of character
             float bulletStartY = position.y + (characterHeight / 2) - 10; // Adjust Y to be at character's height
-            bullets.add(new Bullet(bulletStartX, bulletStartY, 80, 20)); // Specify bullet width and height
+            bullets.add(new Bullet(bulletStartX, bulletStartY, 80, 20, 20)); // Specify bullet width and height
         }
-        
+
 
         // Apply gravity
         velocity.y += GRAVITY * delta;
@@ -68,7 +68,7 @@ public class CharacterController {
             Bullet bullet = iterator.next();
             bullet.update(delta); // Update bullet position
 
-            // Remove bullet if it goes off screen
+            // Remove bullet if it goes off-screen
             if (bullet.isOffScreen(Gdx.graphics.getWidth())) {
                 iterator.remove(); // Remove bullet from list
             }

@@ -12,13 +12,13 @@ public class Bullet {
     private final float height; // Bullet height
     private final int damage; //Bullet damage
 
-    public Bullet(float startX, float startY, float width, float height) {
+    public Bullet(float startX, float startY, float width, float height, int damage) {
         position = new Vector2(startX, startY);
         velocity = new Vector2(speed, 0); // Move right
         texture = new Texture("bullet.png"); // Load bullet texture
         this.width = width; // Set the bullet width
         this.height = height; // Set the bullet height
-        this.damage = 0;
+        this.damage = damage; //set damage value
     }
 
     public void update(float delta) {

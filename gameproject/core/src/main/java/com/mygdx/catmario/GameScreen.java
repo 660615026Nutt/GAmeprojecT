@@ -103,6 +103,7 @@ public class GameScreen implements Screen {
         characterPosition.set(characterController.getPosition());
 
         batch.begin();
+
         batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.draw(groundTexture, 0, GROUND_Y, Gdx.graphics.getWidth(), GROUND_HEIGHT);
         batch.draw(characterTexture, characterPosition.x, characterPosition.y, characterWidth, characterHeight);
@@ -112,7 +113,7 @@ public class GameScreen implements Screen {
         }
 
         for (Enemy enemy : enemies) {
-            batch.draw(enemy.getTexture(), enemy.getPosition().x, enemy.getPosition().y, 100, 100); //rezize
+            batch.draw(enemy.getTexture(), enemy.getPosition().x, enemy.getPosition().y, 100, 100); //resize
         }
 
         for (Bullet bullet : characterController.getBullets()) {
@@ -126,15 +127,13 @@ public class GameScreen implements Screen {
         //remove dead enemies
         enemies.removeIf(enemy -> !enemy.isAlive());
 
-        batch.end();
-
         // Display character status on the top-left corner
         drawCharacterStatus(batch);
 
-        batch.end();
-
         // Draw border around the status box
         drawStatusBoxBorder();
+
+        batch.end();
 
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
             pauseGame();
@@ -182,8 +181,10 @@ public class GameScreen implements Screen {
 
     private boolean checkCollision (Bullet bullet, Enemy enemy) {
         //check if the bullet work or not
-        return bullet.getPosition().x < enemy.getPosition().x + 100 && // for calcualte position and size
-        bullet.getPosition().x <
+        return bullet.getPosition().x < enemy.getPosition().x + 100 && // for calculate position and size
+        bullet.getPosition().x + bullet.getWidth() > enemy.getPosition().x &&
+        bullet.getPosition().y < enemy.getPosition().y + 100 &&
+        bullet.getPosition().y + bullet.getHeight() > enemy.getPosition().y;
     }
 
     @Override
