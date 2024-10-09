@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameScreen implements Screen {
     private final Main game;
@@ -19,6 +21,7 @@ public class GameScreen implements Screen {
     private final Texture groundTexture;
     private final int selectedCharacter;
     private final String characterName;
+    private List<Enemy> enemies; //this list is for collecting all enemies
 
     // Character size and position
     private float characterWidth;
@@ -86,13 +89,16 @@ public class GameScreen implements Screen {
         statusBackgroundTexture = new Texture("statusbackground.png");
 
         SoundManager.playMusic(backgroundMusic);
+
+        enemies = new ArrayList<>(); //creat arrayList for enemies
+        enemies.add(new Enemy(800, GROUND_Y + 150)); //initial position of enemies
     }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        
+
         characterController.update(delta);
         characterPosition.set(characterController.getPosition());
 
@@ -104,6 +110,23 @@ public class GameScreen implements Screen {
         for (Bullet bullet : characterController.getBullets()) {
             batch.draw(bullet.getTexture(), bullet.getPosition().x, bullet.getPosition().y, bullet.getWidth(), bullet.getHeight());
         }
+
+        for (Enemy enemy : enemies) {
+            batch.draw(enemy.getTexture(), enemy.getPosition().x, enemy.getPosition().y, 100, 100); //rezize
+        }
+
+        for (Bullet bullet : characterController.getBullets()) {
+            for (Enemy enemy : enemies) {
+                if (checkCollision(bullet, enemy)) {
+                    enemy.takeDamage(bullet.getDamage()); //when the bullet is used, delete it from the screen
+                }
+            }
+        }
+
+        //remove dead enemies
+        enemies.removeIf(enemy -> !enemy.isAlive());
+
+        batch.end();
 
         // Display character status on the top-left corner
         drawCharacterStatus(batch);
@@ -157,6 +180,12 @@ public class GameScreen implements Screen {
         game.setScreen(new PauseMenuScreen(game, selectedCharacter, characterName));
     }
 
+    private boolean checkCollision (Bullet bullet, Enemy enemy) {
+        //check if the bullet work or not
+        return bullet.getPosition().x < enemy.getPosition().x + 100 && // for calcualte position and size
+        bullet.getPosition().x <
+    }
+
     @Override
     public void resize(int width, int height) {}
 
@@ -193,28 +222,3 @@ public class GameScreen implements Screen {
         shapeRenderer.dispose();  // Dispose ShapeRenderer
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -10,6 +10,7 @@ public class Bullet {
     private final float speed = 500; // Bullet speed
     private final float width ; // Bullet width
     private final float height; // Bullet height
+    private final int damage; //Bullet damage
 
     public Bullet(float startX, float startY, float width, float height) {
         position = new Vector2(startX, startY);
@@ -17,6 +18,7 @@ public class Bullet {
         texture = new Texture("bullet.png"); // Load bullet texture
         this.width = width; // Set the bullet width
         this.height = height; // Set the bullet height
+        this.damage = 0;
     }
 
     public void update(float delta) {
@@ -30,6 +32,8 @@ public class Bullet {
     public Texture getTexture() {
         return texture;
     }
+
+    public int getDamage() {return damage;} //get bullet damage
 
     public boolean isOffScreen(float screenWidth) {
         return position.x > screenWidth; // Check if bullet is off the screen
