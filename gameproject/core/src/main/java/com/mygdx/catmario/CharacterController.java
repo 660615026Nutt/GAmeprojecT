@@ -82,6 +82,8 @@ public class CharacterController {
     public ArrayList<Bullet> getBullets() {
         return bullets; // Getter for bullets
     }
+
+    public void removeBullet(Bullet bullet) { bullets.remove(bullet); }
 }
 
 

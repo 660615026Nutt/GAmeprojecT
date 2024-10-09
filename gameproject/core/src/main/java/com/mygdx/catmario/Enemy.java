@@ -8,13 +8,29 @@ public class Enemy {
     private int health; //enemy health
     private boolean isDead;
     private final Vector2 position;
-    private final Texture texture;
+    private Texture texture;
+    private final float speed = 100; // speed of enemy
 
     public Enemy(float startX, float startY) {
         this.health = 100; //initial HP
         this.isDead = false; //for start game
         this.position = new Vector2(startX, startY);
         this.texture = new Texture("enemy.jpg"); //enemy texture
+    }
+
+    public void setDead(boolean isDead) {
+        this.isDead = isDead;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
+    }
+
+    //movementPart
+    public void update(float delta) {
+        if (!isDead) {
+            position.x += speed * delta;
+        }
     }
 
     //damage from bullet

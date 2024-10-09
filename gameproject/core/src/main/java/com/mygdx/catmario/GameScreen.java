@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 public class GameScreen implements Screen {
     private final Main game;
@@ -21,7 +22,8 @@ public class GameScreen implements Screen {
     private final Texture groundTexture;
     private final int selectedCharacter;
     private final String characterName;
-    private List<Enemy> enemies; //this list is for collecting all enemies
+    private Boss boss;
+    private int characterHP = 100;
 
     // Character size and position
     private float characterWidth;
@@ -43,7 +45,7 @@ public class GameScreen implements Screen {
     private final Texture heartTexture;   // Texture for hearts
     private Texture characterFaceTexture;  // Texture for character face
     private final int lives = 3;          // Number of lives (3 hearts)
-    private final int hp = 100;           // HP for each life (max 100)
+    private final int getCharacterHP = 100;           // HP for each life (max 100)
 
     // Add background block for status
     private final Texture statusBackgroundTexture;
@@ -90,8 +92,9 @@ public class GameScreen implements Screen {
 
         SoundManager.playMusic(backgroundMusic);
 
-        enemies = new ArrayList<>(); //creat arrayList for enemies
-        enemies.add(new Enemy(800, GROUND_Y + 150)); //initial position of enemies
+        //spawn Boss at the edge
+        boss = new Boss(Gdx.graphics.getWidth() - 100, GROUND_Y + 150);
+
     }
 
     @Override
@@ -99,8 +102,17 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        //check if character has HP or not
+        if (characterHP <= 0) {
+            game.setScreen(new GameScreen(game, selectedCharacter, characterName)); //just temp page, waiting for GameOver Page
+            //game.setScreen(new GameOverScreen()game)); for the real one (For GameOver Page)
+            return;
+        }
+
         characterController.update(delta);
         characterPosition.set(characterController.getPosition());
+
+        boss.update(delta);
 
         batch.begin();
 
@@ -108,35 +120,76 @@ public class GameScreen implements Screen {
         batch.draw(groundTexture, 0, GROUND_Y, Gdx.graphics.getWidth(), GROUND_HEIGHT);
         batch.draw(characterTexture, characterPosition.x, characterPosition.y, characterWidth, characterHeight);
 
-        for (Bullet bullet : characterController.getBullets()) {
+        Iterator<Bullet> iterator = characterController.getBullets().iterator();
+        while (iterator.hasNext()) {
+            Bullet bullet = iterator.next();
+            bullet.update(delta);
             batch.draw(bullet.getTexture(), bullet.getPosition().x, bullet.getPosition().y, bullet.getWidth(), bullet.getHeight());
-        }
 
-        for (Enemy enemy : enemies) {
-            batch.draw(enemy.getTexture(), enemy.getPosition().x, enemy.getPosition().y, 100, 100); //resize
-        }
-
-        for (Bullet bullet : characterController.getBullets()) {
-            for (Enemy enemy : enemies) {
-                if (checkCollision(bullet, enemy)) {
-                    enemy.takeDamage(bullet.getDamage()); //when the bullet is used, delete it from the screen
-                }
+            if (checkCollision(bullet, boss)) {
+                boss.takeDamage(bullet.getDamage());
+//                SoundManager.playSoundEffect("bossHit.wav");
+                iterator.remove();
             }
         }
 
-        //remove dead enemies
-        enemies.removeIf(enemy -> !enemy.isAlive());
+        //draw Boss
+        if (!boss.isDead()) {
+            batch.draw(boss.getTexture(), boss.getPosition().x, boss.getPosition().y, 300, 500); //boss's size
 
-        // Display character status on the top-left corner
+            //Check if it hit or not
+            if (boss.isAttacking()) {
+                batch.setColor(Color.RED); //change the color when it's hit
+            } else {
+                batch.setColor(Color.WHITE); // change back to normal color when it's not hit
+            }
+
+            //Draw HP's Bar
+            float percentHP = (float) boss.getCurrentHP() / (float) boss.getMaxHP(); //calculate HP's %
+            float barWidth = 200; //width of HP's bar
+            float barHeight = 20; //height og HP's bar
+            float barX = boss.getPosition().x; // x position
+            float barY = boss.getPosition().y + 520; // y position
+
+            //Background's Bar (Black)
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.BLACK);
+            shapeRenderer.rect(barX, barY, barWidth, barHeight);
+
+            //HP's Bar (Red)
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.rect(barX, barY, barWidth * percentHP, barHeight);
+            shapeRenderer.end();
+
+        }
+
+        //check if the Boss is hit or not
+        for (Bullet bullet : characterController.getBullets()) {
+            bullet.update(delta);
+            batch.draw(bullet.getTexture(), bullet.getPosition().x, bullet.getPosition().y, bullet.getWidth(), bullet.getHeight());
+
+            if (checkCollision(bullet, boss)) {
+                boss.takeDamage(bullet.getDamage());
+                characterController.removeBullet(bullet);
+                break;
+            }
+        }
+
+        if (boss.getPosition().x < characterPosition.x + characterWidth &&
+        boss.getPosition().x + 200 > characterPosition.x) {
+            characterHP -= 350; //reduce character in one time
+        }
+
+        // Display character status in the top-left corner
         drawCharacterStatus(batch);
+
+        batch.end();
 
         // Draw border around the status box
         drawStatusBoxBorder();
 
-        batch.end();
-
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
-            pauseGame();
+            pauseGame(); //ESC to pause the game
         }
     }
 
@@ -155,7 +208,7 @@ public class GameScreen implements Screen {
         // Draw character name
         font.getData().setScale(1.5f);  // Adjusted scale for better size
         font.setColor(Color.BLACK);  // Set font color to black
-        font.draw(batch, "Name: " + characterName, 130, Gdx.graphics.getHeight() - 50 - statusYOffset);
+        font.draw(batch, "Student Name: " + characterName, 130, Gdx.graphics.getHeight() - 50 - statusYOffset);
 
         // Draw hearts (lives)
         for (int i = 0; i < lives; i++) {
@@ -163,7 +216,7 @@ public class GameScreen implements Screen {
         }
 
         // Draw HP
-        font.draw(batch, "HP: " + hp + "/100", 130, Gdx.graphics.getHeight() - 160 - statusYOffset);  // Adjusted Y position
+        font.draw(batch, "Score : " + characterHP + "/100", 130, Gdx.graphics.getHeight() - 160 - statusYOffset);  // Adjusted Y position
     }
 
     private void drawStatusBoxBorder() {
