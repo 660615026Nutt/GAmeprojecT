@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry excluding="com/mygdx/catmario/" kind="src" path="GAmeprojecT-malp/gameproject/core/src/main/java"/>
+	<classpathentry kind="src" path="GAmeprojecT-malp/gameproject/core/src/main/java/com/mygdx/catmario"/>
+	<classpathentry kind="src" path="GAmeprojecT-malp/gameproject/lwjgl3/src/main/java"/>
+	<classpathentry kind="lib" path="GAmeprojecT-malp/gameproject/gradle/wrapper/gradle-wrapper.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
